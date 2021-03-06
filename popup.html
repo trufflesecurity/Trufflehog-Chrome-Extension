@@ -1,0 +1,41 @@
+<!-- Copyright 2017 The Chromium Authors. All rights reserved.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file. -->
+<html>
+  <head>
+      <title>Trufflehog</title>
+      <link href="popup.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+      <img src='./icon.png'>
+      <div>
+          Generic Secrets
+          <label class="switch">
+              <input type="checkbox" id="generics">
+              <span class="slider"></span>
+          </label>
+      </div>
+      <div>
+          Specific Secrets
+          <label class="switch">
+              <input type="checkbox" id="specifics">
+              <span class="slider"></span>
+          </label>
+      </div>
+      <div>
+          Just AWS Keys
+          <label class="switch">
+              <input type="checkbox" id="aws">
+              <span class="slider"></span>
+          </label>
+      </div>
+      <div>
+          Check for .env files
+          <label class="switch">
+              <input type="checkbox" id="checkEnv">
+              <span class="slider"></span>
+          </label>
+      </div>
+   <script src="popup.js"></script>
+  </body>
+</html>

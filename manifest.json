@@ -1,9 +1,9 @@
 {
-  "name": "Injecta",
+  "name": "Trufflehog",
   "version": "0.0.1",
   "manifest_version": 2,
-  "description": "Injecting stuff",
-  "homepage_url": "http://danharper.me",
+  "description": "Sniffing out credentials",
+  "homepage_url": "https://trufflesecurity.com",
   "background": {
     "scripts": [
       "background.js"
@@ -11,14 +11,20 @@
     "persistent": true
   },
   "browser_action": {
-    "default_title": "Inject!"
+    "default_title": "Trufflehog",
+    "default_popup": "popup.html"
   },
   "permissions": [
     "https://*/*",
     "http://*/*",
     "activeTab",
-    "tabs"
+    "tabs",
+    "notifications",
+    "storage"
   ],
+  "icons": { "16": "icon16.png",
+           "48": "icon48.png",
+          "128": "icon128.png" },
   "content_scripts": [
 		{
 		 "matches": ["https://*/*","http://*/*"],
