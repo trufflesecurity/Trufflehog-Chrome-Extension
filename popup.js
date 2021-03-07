@@ -5,9 +5,7 @@ let toggles = ["generics", "specifics", "aws", "checkEnv"];
 for (let toggle of toggles){
     chrome.storage.sync.get([toggle], function(result) {
         if (result[toggle] == undefined || result[toggle] == true){
-            console.log(toggle);
             document.getElementById(toggle).checked = true;
-            console.log("wat");
             var setObj = {}
             setObj[toggle] = true;
             chrome.storage.sync.set(setObj);
@@ -45,7 +43,6 @@ for (i = 0; i < acc.length; i++) {
       panel.style.display = "block";
       var el = document.getElementById("denyList");
       chrome.storage.sync.get(["originDenyList"], function(result) {
-        console.log(result.originDenyList)
         el.value = result.originDenyList.join(",");
         el.focus();
       })
@@ -59,7 +56,6 @@ var changeEvent = function(){
     var denyList = rawDenyList.split(",").map(function(item) {
         return item.trim();
     })
-    console.log(denyList);
     chrome.storage.sync.set({"originDenyList": denyList});
 };
 

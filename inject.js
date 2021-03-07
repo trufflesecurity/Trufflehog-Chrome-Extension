@@ -16,7 +16,6 @@
          for (scriptIndex in document.scripts) {
             if (document.scripts[scriptIndex].src){
                 let scriptSRC = document.scripts[scriptIndex].src;
-                console.log(scriptSRC)
                 if (scriptSRC.startsWith("//")){
                     scriptSRC = location.protocol + scriptSRC
                 }
