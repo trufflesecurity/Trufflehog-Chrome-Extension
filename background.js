@@ -144,7 +144,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                         let js_url = request.scriptUrl;
                         checkIfOriginDenied(js_url, function(skip){
                             if (!skip){
-                                fetch(js_url)
+                                fetch(js_url, {"credentials": 'include'})
                                     .then(response => response.text())
                                     .then(data => checkData(data, js_url, regexes));
                             }
@@ -159,7 +159,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                         })
                     }else if(request.envFile){
                         if(checkEnv['checkEnv'] || checkEnv["checkEnv"] == undefined){
-                            fetch(request.envFile)
+                            fetch(request.envFile, {"credentials": 'include'})
                                 .then(response => response.text())
                                 .then(data => checkData(data, ".env file at " + request.envFile, regexes));
                         }
