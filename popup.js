@@ -1,5 +1,5 @@
 
-let toggles = ["generics", "specifics", "aws", "checkEnv"];
+let toggles = ["generics", "specifics", "aws", "checkEnv", "alerts"];
 
 
 for (let toggle of toggles){
@@ -26,6 +26,10 @@ for (let toggle of toggles){
 
 }
 
+
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 var acc = document.getElementsByClassName("accordion");
 var i;
 
@@ -46,9 +50,26 @@ for (i = 0; i < acc.length; i++) {
         el.value = result.originDenyList.join(",");
         el.focus();
       })
+      chrome.storage.sync.get(["leakedKeys"], function(result) {
+        var keys = result.leakedKeys;
+        let keyInfo = "";
+        let htmlList = "";
+        for (key of keys){
+            keyInfo = key["key"] + ": " + key["match"] + " found in " + key["src"];
+            keyInfo = htmlEntities(keyInfo);
+            htmlList += "<li>" + keyInfo + "</li>\n"
+        }
+        document.getElementById("findingList").innerHTML = htmlList;
+      })
     }
   });
 }
+
+document.getElementById("clearFindings").addEventListener("click", function() {
+    chrome.storage.sync.set({"leakedKeys": []});
+    chrome.browserAction.setBadgeText({text: ''});
+    document.getElementById("findingList").innerHTML = "";
+})
 
 var denyListElement = document.getElementById("denyList");
 var changeEvent = function(){

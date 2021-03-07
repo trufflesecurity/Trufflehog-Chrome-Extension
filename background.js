@@ -83,16 +83,33 @@ a = ""
 b = ""
 var checkData = function(data, src, regexes){
 
-    for (key in regexes){
-        re = new RegExp(regexes[key])
-        match = re.exec(data);
+    for (let key in regexes){
+        let re = new RegExp(regexes[key])
+        let match = re.exec(data);
         if (denyList.includes(match)){
             continue;
         }
         if (match){
+            let finding = {};
+            finding = {src: src, match:match, key:key};
             a = data;
             b = re;
-            alert(key + ": " + match + " found in " + src);
+            chrome.storage.sync.get(["alerts"], function(result) {
+                console.log(result.alerts)
+                if (result.alerts == undefined || result.alerts){
+                    alert(key + ": " + match + " found in " + src);
+                }
+            })
+            chrome.storage.sync.get(["leakedKeys"], function(result) {
+
+                if(result.leakedKeys){
+
+                    var keys = result.leakedKeys.concat([finding])
+                }else{
+                    var keys = [finding];
+                }
+                chrome.storage.sync.set({leakedKeys: keys});
+            })
             chrome.browserAction.setBadgeText({text: 'KEY!'});
             chrome.browserAction.setBadgeBackgroundColor({color: '#ff0000'});
         }

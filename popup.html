@@ -36,11 +36,27 @@ found in the LICENSE file. -->
               <span class="slider"></span>
           </label>
       </div>
+      <div style="margin-bottom: 10px">
+          <h3>Alerts</h3>
+          <label class="switch">
+              <input type="checkbox" id="alerts">
+              <span class="slider"></span>
+          </label>
+      </div>
       <div>
           <button class="accordion"><h3>Origin Deny List</h3></button>
           <div class="panel">
               Comma Seperated
               <textarea style="width:100%" id="denyList"></textarea>
+          </div>
+      </div>
+       <div>
+          <button class="accordion"><h3>Findings</h3></button>
+          <div class="panel">
+              <button style="margin-top: 10px" id="clearFindings">Clear</button>
+              <ul id="findingList">
+
+              </ul>
           </div>
       </div>
    <script src="popup.js"></script>
