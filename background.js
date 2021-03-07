@@ -20,6 +20,13 @@ chrome.tabs.query( //get current Tab
     }
 )
 
+chrome.storage.sync.get(['ranOnce'], function(ranOnce) {
+    if (! ranOnce.ranOnce){
+        chrome.storage.sync.set({"ranOnce": true});
+        chrome.storage.sync.set({"originDenyList": ["https://www.google.com"]});
+    }
+
+})
 
 
 let specifics = {
@@ -70,6 +77,8 @@ let aws = {
     "AWS API Key": "((?:A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16})",
 }
 
+let denyList = ["AIDAAAAAAAAAAAAAAAAA"]
+
 a = ""
 b = ""
 var checkData = function(data, src, regexes){
@@ -77,6 +86,9 @@ var checkData = function(data, src, regexes){
     for (key in regexes){
         re = new RegExp(regexes[key])
         match = re.exec(data);
+        if (denyList.includes(match)){
+            continue;
+        }
         if (match){
             a = data;
             b = re;
@@ -87,6 +99,19 @@ var checkData = function(data, src, regexes){
 
 
     }
+}
+
+var checkIfOriginDenied = function(check_url, cb){
+    let skip = false;
+    chrome.storage.sync.get(["originDenyList"], function(result) {
+        let originDenyList = result.originDenyList;
+        for (origin of originDenyList){
+            if(check_url.startsWith(origin)){
+                skip = true;
+            }
+        }
+        cb(skip);
+    })
 }
 
 var js_url;
@@ -117,11 +142,21 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                     }
                     if (request.scriptUrl) {
                         let js_url = request.scriptUrl;
-                        fetch(js_url)
-                            .then(response => response.text())
-                            .then(data => checkData(data, js_url, regexes));
+                        checkIfOriginDenied(js_url, function(skip){
+                            if (!skip){
+                                fetch(js_url)
+                                    .then(response => response.text())
+                                    .then(data => checkData(data, js_url, regexes));
+                            }
+
+                        })
+
                     }else if(request.pageBody){
-                        checkData(request.pageBody, "doc tree", regexes);
+                        checkIfOriginDenied(request.origin, function(skip){
+                            if (!skip){
+                                checkData(request.pageBody, "doc tree", regexes);
+                            }
+                        })
                     }else if(request.envFile){
                         if(checkEnv['checkEnv'] || checkEnv["checkEnv"] == undefined){
                             fetch(request.envFile)
@@ -139,14 +174,3 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 
 });
 
-
-chrome.notifications.create({
-  type:     'basic',
-  iconUrl:  'icon.png',
-  title:    'Time to Hydrate',
-  message:  'Everyday I\'m Guzzlin\'!',
-  buttons: [
-    {title: 'Keep it Flowing.'}
-  ],
-  priority: 0});
-  console.log("wat")

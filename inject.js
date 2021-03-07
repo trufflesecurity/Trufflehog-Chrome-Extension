@@ -5,7 +5,7 @@
     let re = new RegExp();
     let match = "";
     let page = document.documentElement.innerHTML;
-    chrome.runtime.sendMessage({"pageBody": page});
+    chrome.runtime.sendMessage({"pageBody": page, "origin":window.origin});
 
     //chrome.browserAction.setBadgeText({text: 'ON'});
 
@@ -25,8 +25,11 @@
 
         }
     },2000)
-
-    let envUrl = window.location.href.replace(/\/$/, "") + "/.env";
+    let origin = window.location.origin;
+    let originalPath = window.location.pathname;
+    let newPath = originalPath.substr(0, originalPath.lastIndexOf("/"));
+    let newHref = origin + newPath;
+    let envUrl = newHref + "/.env";
     chrome.runtime.sendMessage({"envFile": envUrl});
 
 })()

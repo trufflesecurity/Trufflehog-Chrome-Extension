@@ -6,35 +6,42 @@ found in the LICENSE file. -->
       <title>Trufflehog</title>
       <link href="popup.css" rel="stylesheet" type="text/css">
   </head>
-  <body>
-      <img src='./icon.png'>
+  <body style="width: 300px;">
+      <img src='./icon.png' style="width: 128px; margin: auto; display: block;">
       <div>
-          Generic Secrets
+          <h3>Generic Secrets</h3>
           <label class="switch">
               <input type="checkbox" id="generics">
               <span class="slider"></span>
           </label>
       </div>
       <div>
-          Specific Secrets
+          <h3>Specific Secrets</h3>
           <label class="switch">
               <input type="checkbox" id="specifics">
               <span class="slider"></span>
           </label>
       </div>
       <div>
-          Just AWS Keys
+          <h3>Just AWS Keys</h3>
           <label class="switch">
               <input type="checkbox" id="aws">
               <span class="slider"></span>
           </label>
       </div>
-      <div>
-          Check for .env files
+      <div style="margin-bottom: 10px">
+          <h3>Check for .env files</h3>
           <label class="switch">
               <input type="checkbox" id="checkEnv">
               <span class="slider"></span>
           </label>
+      </div>
+      <div>
+          <button class="accordion"><h3>Origin Deny List</h3></button>
+          <div class="panel">
+              Comma Seperated
+              <textarea style="width:100%" id="denyList"></textarea>
+          </div>
       </div>
    <script src="popup.js"></script>
   </body>

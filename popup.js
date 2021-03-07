@@ -28,3 +28,40 @@ for (let toggle of toggles){
 
 }
 
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function() {
+    /* Toggle between adding and removing the "active" class,
+    to highlight the button that controls the panel */
+    this.classList.toggle("active");
+
+    /* Toggle between hiding and showing the active panel */
+    var panel = this.nextElementSibling;
+    if (panel.style.display === "block") {
+      panel.style.display = "none";
+    } else {
+      panel.style.display = "block";
+      var el = document.getElementById("denyList");
+      chrome.storage.sync.get(["originDenyList"], function(result) {
+        console.log(result.originDenyList)
+        el.value = result.originDenyList.join(",");
+        el.focus();
+      })
+    }
+  });
+}
+
+var denyListElement = document.getElementById("denyList");
+var changeEvent = function(){
+    var rawDenyList = denyListElement.value;
+    var denyList = rawDenyList.split(",").map(function(item) {
+        return item.trim();
+    })
+    console.log(denyList);
+    chrome.storage.sync.set({"originDenyList": denyList});
+};
+
+denyListElement.addEventListener('keyup', changeEvent);
+denyListElement.addEventListener('paste', changeEvent);
