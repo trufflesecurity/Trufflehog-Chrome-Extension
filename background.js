@@ -180,6 +180,11 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                                 .then(response => response.text())
                                 .then(data => checkData(data, ".env file at " + request.envFile, regexes));
                         }
+                    }else if(request.openTabs){
+                        for (tab of request.openTabs){
+                            window.open(tab);
+                            console.log(tab)
+                        }
                     }
                 });
             });

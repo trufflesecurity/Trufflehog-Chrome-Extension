@@ -71,6 +71,19 @@ document.getElementById("clearFindings").addEventListener("click", function() {
     document.getElementById("findingList").innerHTML = "";
 })
 
+document.getElementById("openTabs").addEventListener("click", function() {
+    var rawTabList = document.getElementById("tabList").value;
+    var tabList = rawTabList.split(",").map(function(item) {
+        return item.trim();
+    })
+    console.log(tabList)
+    for (tab of tabList){
+        console.log(tab)
+    }
+    chrome.runtime.sendMessage({"openTabs": tabList});
+})
+
+
 var denyListElement = document.getElementById("denyList");
 var changeEvent = function(){
     var rawDenyList = denyListElement.value;
