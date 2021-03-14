@@ -130,7 +130,12 @@ var checkIfOriginDenied = function(check_url, cb){
         cb(skip);
     })
 }
+var checkGit = function(data, url){
+    if(data.startsWith("[core]")){
+        alert(".git dir found in " + url + " feature to check this for secrets not supported");
+    }
 
+}
 var js_url;
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 
@@ -185,6 +190,13 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             window.open(tab);
                             console.log(tab)
                         }
+                    }else if(request.gitDir){
+                        if(checkEnv['checkGit'] || checkEnv["checkGit"] == undefined){
+                        fetch(request.gitDir, {"credentials": 'include'})
+                                .then(response => response.text())
+                                .then(data => checkGit(data, request.gitDir));
+                        }
+
                     }
                 });
             });

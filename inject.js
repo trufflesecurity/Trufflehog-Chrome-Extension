@@ -30,6 +30,7 @@
     let newHref = origin + newPath;
     let envUrl = newHref + "/.env";
     chrome.runtime.sendMessage({"envFile": envUrl});
-
+    let gitUrl = newHref + "/.git/config";
+    chrome.runtime.sendMessage({"gitDir": gitUrl});
 })()
 

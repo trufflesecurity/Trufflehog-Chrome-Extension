@@ -1,5 +1,5 @@
 
-let toggles = ["generics", "specifics", "aws", "checkEnv", "alerts"];
+let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts"];
 
 
 for (let toggle of toggles){
