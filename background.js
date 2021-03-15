@@ -180,7 +180,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             }
                         })
                     }else if(request.envFile){
-                        if(checkEnv['checkEnv'] || checkEnv["checkEnv"] == undefined){
+                        if(checkEnv['checkEnv']){
                             fetch(request.envFile, {"credentials": 'include'})
                                 .then(response => response.text())
                                 .then(data => checkData(data, ".env file at " + request.envFile, regexes));
@@ -191,7 +191,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             console.log(tab)
                         }
                     }else if(request.gitDir){
-                        if(checkEnv['checkGit'] || checkEnv["checkGit"] == undefined){
+                        if(checkEnv['checkGit']){
                         fetch(request.gitDir, {"credentials": 'include'})
                                 .then(response => response.text())
                                 .then(data => checkGit(data, request.gitDir));

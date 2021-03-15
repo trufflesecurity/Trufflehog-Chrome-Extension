@@ -1,14 +1,24 @@
 
 let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts"];
 
+let toggleDefaults = {
+    "generics": true,
+    "specifics": true,
+    "aws": true,
+    "checkEnv": false,
+    "checkGit": false,
+    "alerts":true
+}
 
 for (let toggle of toggles){
     chrome.storage.sync.get([toggle], function(result) {
-        if (result[toggle] == undefined || result[toggle] == true){
-            document.getElementById(toggle).checked = true;
+        if (result[toggle] == undefined){
+            document.getElementById(toggle).checked = toggleDefaults[toggle];
             var setObj = {}
-            setObj[toggle] = true;
+            setObj[toggle] = toggleDefaults[toggle];
             chrome.storage.sync.set(setObj);
+        }else if (result[toggle] == true) {
+           document.getElementById(toggle).checked = true;
         }
 
     });
