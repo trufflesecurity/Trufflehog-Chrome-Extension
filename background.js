@@ -176,7 +176,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                     }else if(request.pageBody){
                         checkIfOriginDenied(request.origin, function(skip){
                             if (!skip){
-                                checkData(request.pageBody, "doc tree", regexes);
+                                checkData(request.pageBody, request.origin, regexes);
                             }
                         })
                     }else if(request.envFile){
