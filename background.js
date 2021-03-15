@@ -130,7 +130,7 @@ var checkIfOriginDenied = function(check_url, cb){
         cb(skip);
     })
 }
-var checkGit = function(data, url){
+var checkForGitDir = function(data, url){
     if(data.startsWith("[core]")){
         alert(".git dir found in " + url + " feature to check this for secrets not supported");
     }
@@ -143,61 +143,63 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
         chrome.storage.sync.get(['specifics'], function(useSpecifics) {
             chrome.storage.sync.get(['aws'], function(useAws) {
                 chrome.storage.sync.get(['checkEnv'], function(checkEnv) {
-                    let regexes = {};
-                    if(useGenerics["generics"] || useGenerics["generics"] == undefined){
-                        regexes = {
-                            ...regexes,
-                            ...generics
+                    chrome.storage.sync.get(['checkGit'], function(checkGit) {
+                        let regexes = {};
+                        if(useGenerics["generics"] || useGenerics["generics"] == undefined){
+                            regexes = {
+                                ...regexes,
+                                ...generics
+                            }
                         }
-                    }
-                    if(useSpecifics["specifics"] || useSpecifics["specifics"] == undefined){
-                        regexes = {
-                            ...regexes,
-                            ...specifics
+                        if(useSpecifics["specifics"] || useSpecifics["specifics"] == undefined){
+                            regexes = {
+                                ...regexes,
+                                ...specifics
+                            }
                         }
-                    }
-                    if(useAws["aws"] || useAws["aws"] == undefined){
-                        regexes = {
-                            ...regexes,
-                            ...aws
+                        if(useAws["aws"] || useAws["aws"] == undefined){
+                            regexes = {
+                                ...regexes,
+                                ...aws
+                            }
                         }
-                    }
-                    if (request.scriptUrl) {
-                        let js_url = request.scriptUrl;
-                        checkIfOriginDenied(js_url, function(skip){
-                            if (!skip){
-                                fetch(js_url, {"credentials": 'include'})
+                        if (request.scriptUrl) {
+                            let js_url = request.scriptUrl;
+                            checkIfOriginDenied(js_url, function(skip){
+                                if (!skip){
+                                    fetch(js_url, {"credentials": 'include'})
+                                        .then(response => response.text())
+                                        .then(data => checkData(data, js_url, regexes));
+                                }
+
+                            })
+
+                        }else if(request.pageBody){
+                            checkIfOriginDenied(request.origin, function(skip){
+                                if (!skip){
+                                    checkData(request.pageBody, request.origin, regexes);
+                                }
+                            })
+                        }else if(request.envFile){
+                            if(checkEnv['checkEnv']){
+                                fetch(request.envFile, {"credentials": 'include'})
                                     .then(response => response.text())
-                                    .then(data => checkData(data, js_url, regexes));
+                                    .then(data => checkData(data, ".env file at " + request.envFile, regexes));
+                            }
+                        }else if(request.openTabs){
+                            for (tab of request.openTabs){
+                                window.open(tab);
+                                console.log(tab)
+                            }
+                        }else if(request.gitDir){
+                            if(checkGit['checkGit']){
+                            fetch(request.gitDir, {"credentials": 'include'})
+                                    .then(response => response.text())
+                                    .then(data => checkForGitDir(data, request.gitDir));
                             }
 
-                        })
-
-                    }else if(request.pageBody){
-                        checkIfOriginDenied(request.origin, function(skip){
-                            if (!skip){
-                                checkData(request.pageBody, request.origin, regexes);
-                            }
-                        })
-                    }else if(request.envFile){
-                        if(checkEnv['checkEnv']){
-                            fetch(request.envFile, {"credentials": 'include'})
-                                .then(response => response.text())
-                                .then(data => checkData(data, ".env file at " + request.envFile, regexes));
                         }
-                    }else if(request.openTabs){
-                        for (tab of request.openTabs){
-                            window.open(tab);
-                            console.log(tab)
-                        }
-                    }else if(request.gitDir){
-                        if(checkEnv['checkGit']){
-                        fetch(request.gitDir, {"credentials": 'include'})
-                                .then(response => response.text())
-                                .then(data => checkGit(data, request.gitDir));
-                        }
-
-                    }
+                    });
                 });
             });
 
