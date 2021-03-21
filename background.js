@@ -52,7 +52,7 @@ let specifics = {
    // "Google YouTube API Key": "AIza[0-9A-Za-z\\-_]{35}",
   //  "Google YouTube OAuth": "[0-9]+-[0-9A-Za-z_]{32}\\.apps\\.googleusercontent\\.com",
     "Heroku API Key": "[hH][eE][rR][oO][kK][uU].{0,20}[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}",
-    "Json Web Token" : "ey[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$",
+    "Json Web Token" : "eyJhbGciOiJ",
     "MailChimp API Key": "[0-9a-f]{32}-us[0-9]{1,2}",
     "Mailgun API Key": "key-[0-9a-zA-Z]{32}",
     "Password in URL": "[a-zA-Z]{3,10}://[^/\\s:@]{3,20}:[^/\\s:@]{3,20}@.{1,100}[\"'\\s]",
