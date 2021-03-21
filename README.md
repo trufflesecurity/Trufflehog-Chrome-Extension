@@ -34,4 +34,7 @@ This is untested, I found this repo for google map keys https://github.com/ozgur
 
 These keys also follow the same format for many other API's such as gmail/drive/cloud/etc... so this tool likely doesn't give full coverage
 
-
+## Json web tokens
+JWT's are interesting not just because they go to API's, but also because you can crack their secret in hashcat if they're alg `hs`
+you can decode them here to figure out their algorithm https://jwt.io/
+and you can crack them here https://hashcat.net/wiki/doku.php?id=example_hashes with flag `-m 16500`
