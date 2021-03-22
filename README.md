@@ -2,6 +2,12 @@ Follow [these instructions](https://superuser.com/questions/247651/how-does-one-
 
 Here's what to do if you find these keys:
 
+## AWS keys
+AWS has a rich API and sadely you may have to test a bunch of commands. List buckets might be a good start https://docs.aws.amazon.com/cli/latest/reference/s3api/list-buckets.html
+
+## Slack webhook keys
+These are a problem almost always, see https://cybersecurity.att.com/blogs/labs-research/slack-phishing-attacks-using-webhooks
+
 ## Algelia
 These keys have access controls, a typical public key should not have access to the usage API, otherwise it could be an issue:
 ```
