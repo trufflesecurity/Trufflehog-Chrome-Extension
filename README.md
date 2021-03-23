@@ -1,3 +1,9 @@
+## Questions? Feedback? Join our slack
+
+https://join.slack.com/t/trufflehog-community/shared_invite/zt-nzznzf8w-y1Lg4PnnLupzlYuwq_AUHA
+
+## Install instructions
+
 Follow [these instructions](https://superuser.com/questions/247651/how-does-one-install-an-extension-for-chrome-browser-from-the-local-file-system) to install the extension after local download 
 
 Here's what to do if you find these keys:
