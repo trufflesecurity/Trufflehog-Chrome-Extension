@@ -65,6 +65,7 @@ let specifics = {
     "Square OAuth Secret": "sq0csp-[0-9A-Za-z\\-_]{43}",
     "Telegram Bot API Key": "[0-9]+:AA[0-9A-Za-z\\-_]{33}",
     "Twilio API Key": "SK[0-9a-fA-F]{32}",
+    "Github Auth Creds": "https:\/\/[a-zA-Z0-9]{40}@github\.com",
    // "Twitter Access Token": "[tT][wW][iI][tT][tT][eE][rR].*[1-9][0-9]+-[0-9a-zA-Z]{40}",
    // "Twitter OAuth": "[tT][wW][iI][tT][tT][eE][rR].*['|\"][0-9a-zA-Z]{35,44}['|\"]"
 }
