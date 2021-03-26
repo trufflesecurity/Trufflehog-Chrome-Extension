@@ -83,8 +83,11 @@ let denyList = ["AIDAAAAAAAAAAAAAAAAA"]
 
 a = ""
 b = ""
-var checkData = function(data, src, regexes){
 
+
+
+
+var checkData = function(data, src, regexes, fromEncoded=false){
     for (let key in regexes){
         let re = new RegExp(regexes[key])
         let match = re.exec(data);
@@ -93,13 +96,18 @@ var checkData = function(data, src, regexes){
         }
         if (match){
             let finding = {};
-            finding = {src: src, match:match, key:key};
+            finding = {src: src, match:match, key:key, encoded:fromEncoded};
             a = data;
             b = re;
             chrome.storage.sync.get(["alerts"], function(result) {
                 console.log(result.alerts)
                 if (result.alerts == undefined || result.alerts){
-                    alert(key + ": " + match + " found in " + src);
+                    if (fromEncoded){
+                        alert(key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...");
+                    }else{
+                        alert(key + ": " + match + " found in " + src);
+                    }
+
                 }
             })
             chrome.storage.sync.get(["leakedKeys"], function(result) {
@@ -110,14 +118,56 @@ var checkData = function(data, src, regexes){
                 }else{
                     var keys = [finding];
                 }
+                chrome.browserAction.setBadgeText({text: keys.length.toString()});
+                chrome.browserAction.setBadgeBackgroundColor({color: '#ff0000'});
                 chrome.storage.sync.set({leakedKeys: keys});
             })
-            chrome.browserAction.setBadgeText({text: 'KEY!'});
-            chrome.browserAction.setBadgeBackgroundColor({color: '#ff0000'});
+
         }
-
-
     }
+    let decodedStrings = getDecodedb64(data);
+    for (encoded of decodedStrings){
+        checkData(encoded[1], src, regexes, encoded[0]);
+    }
+}
+
+var getStringsOfSet = function(word, char_set, threshold=20){
+    let count = 0;
+    let letters = "";
+    let strings = [];
+    if (! word){
+        return []
+    }
+    for(let char of word){
+        if (char_set.indexOf(char) > -1){
+            letters += char;
+            count += 1;
+        } else{
+            if ( count > threshold ){
+                strings.push(letters);
+            }
+            letters = "";
+            count = 0;
+        }
+    }
+    if(count > threshold){
+        strings.push(letters);
+    }
+    return strings
+}
+
+var getDecodedb64 = function(inputString){
+    let b64CharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    let encodeds = getStringsOfSet(inputString, b64CharSet);
+    let decodeds = [];
+    for (encoded of encodeds){
+        try {
+            let decoded = [encoded, atob(encoded)];
+            decodeds.push(decoded);
+        } catch(e) {
+        }
+    }
+    return decodeds;
 }
 
 var checkIfOriginDenied = function(check_url, cb){

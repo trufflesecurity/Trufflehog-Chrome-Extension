@@ -19,7 +19,6 @@
     "http://*/*",
     "activeTab",
     "tabs",
-    "notifications",
     "storage"
   ],
   "icons": { "16": "icon16.png",

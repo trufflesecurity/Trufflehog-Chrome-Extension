@@ -66,6 +66,9 @@ for (i = 0; i < acc.length; i++) {
         let htmlList = "";
         for (key of keys){
             keyInfo = key["key"] + ": " + key["match"] + " found in " + key["src"];
+            if (key["encoded"]){
+                 keyInfo += " decoded from " + key["encoded"].substring(0,9) + "..."
+            }
             keyInfo = htmlEntities(keyInfo);
             htmlList += "<li>" + keyInfo + "</li>\n"
         }
