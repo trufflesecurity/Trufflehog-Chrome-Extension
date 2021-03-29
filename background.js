@@ -87,49 +87,98 @@ b = ""
 
 
 
-var checkData = function(data, src, regexes, fromEncoded=false){
+var checkData = function(data, src, regexes, fromEncoded=false, parentUrl=undefined, parentOrigin=undefined){
+    var findings = [];
     for (let key in regexes){
         let re = new RegExp(regexes[key])
         let match = re.exec(data);
+        if (Array.isArray(match)){match = match.toString()}
         if (denyList.includes(match)){
             continue;
         }
         if (match){
             let finding = {};
-            finding = {src: src, match:match, key:key, encoded:fromEncoded};
+            finding = {src: src, match:match, key:key, encoded:fromEncoded, parentUrl:parentUrl};
             a = data;
             b = re;
-            chrome.storage.sync.get(["alerts"], function(result) {
-                console.log(result.alerts)
-                if (result.alerts == undefined || result.alerts){
-                    if (fromEncoded){
-                        alert(key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...");
-                    }else{
-                        alert(key + ": " + match + " found in " + src);
-                    }
-
-                }
-            })
-            chrome.storage.sync.get(["leakedKeys"], function(result) {
-
-                if(result.leakedKeys){
-
-                    var keys = result.leakedKeys.concat([finding])
-                }else{
-                    var keys = [finding];
-                }
-                chrome.browserAction.setBadgeText({text: keys.length.toString()});
-                chrome.browserAction.setBadgeBackgroundColor({color: '#ff0000'});
-                chrome.storage.sync.set({leakedKeys: keys});
-            })
+            findings.push(finding);
 
         }
     }
+    if (findings){
+        chrome.storage.sync.get(["leakedKeys"], function(result) {
+            if (Array.isArray(result.leakedKeys) || ! result.leakedKeys){
+                var keys = {};
+            }else{
+                var keys = result.leakedKeys;
+            };
+            for (let finding of findings){
+                if(Array.isArray(keys[parentOrigin])){
+                    var newFinding = true;
+                    for (key of keys[parentOrigin]){
+                        if (key["src"] == finding["src"] && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"] && key["parentUrl"] == finding["parentUrl"]){
+                            newFinding = false;
+                            break;
+                        }
+                    }
+                    if(newFinding){
+                        keys[parentOrigin].push(finding)
+                        chrome.storage.sync.set({"leakedKeys": keys}, function(){
+                            updateTabAndAlert(finding);
+                        });
+                    }
+                }else{
+                    keys[parentOrigin] = [finding];
+                    chrome.storage.sync.set({"leakedKeys": keys}, function(){
+                        updateTabAndAlert(finding);
+                    })
+                }
+             }
+        })
+    }
     let decodedStrings = getDecodedb64(data);
     for (encoded of decodedStrings){
-        checkData(encoded[1], src, regexes, encoded[0]);
+        checkData(encoded[1], src, regexes, encoded[0], parentUrl, parentOrigin);
     }
 }
+var updateTabAndAlert = function(finding){
+    var key = finding["key"];
+    var src = finding["src"];
+    var match = finding["match"];
+    var fromEncoded = finding["encoded"];
+    chrome.storage.sync.get(["alerts"], function(result) {
+        console.log(result.alerts)
+        if (result.alerts == undefined || result.alerts){
+            if (fromEncoded){
+                alert(key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...");
+            }else{
+                alert(key + ": " + match + " found in " + src);
+            }
+        }
+    })
+    updateTab();
+}
+
+var updateTab = function(){
+     chrome.tabs.getSelected(null, function(tab) {
+        var tabId = tab.id;
+        var tabUrl = tab.url;
+        var origin = (new URL(tabUrl)).origin
+        chrome.storage.sync.get(["leakedKeys"], function(result) {
+            if (Array.isArray(result.leakedKeys[origin])){
+                var originKeys = result.leakedKeys[origin].length.toString();
+            }else{
+                var originKeys = "";
+            }
+            chrome.browserAction.setBadgeText({text: originKeys});
+            chrome.browserAction.setBadgeBackgroundColor({color: '#ff0000'});
+        })
+    });
+}
+
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+    updateTab();
+});
 
 var getStringsOfSet = function(word, char_set, threshold=20){
     let count = 0;
@@ -217,11 +266,13 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                         }
                         if (request.scriptUrl) {
                             let js_url = request.scriptUrl;
+                            let parentUrl = request.parentUrl;
+                            let parentOrigin = request.parentOrigin;
                             checkIfOriginDenied(js_url, function(skip){
                                 if (!skip){
                                     fetch(js_url, {"credentials": 'include'})
                                         .then(response => response.text())
-                                        .then(data => checkData(data, js_url, regexes));
+                                        .then(data => checkData(data, js_url, regexes, undefined, parentUrl, parentOrigin));
                                 }
 
                             })
@@ -229,14 +280,14 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                         }else if(request.pageBody){
                             checkIfOriginDenied(request.origin, function(skip){
                                 if (!skip){
-                                    checkData(request.pageBody, request.origin, regexes);
+                                    checkData(request.pageBody, request.origin, regexes, undefined, request.parentUrl, request.parentOrigin);
                                 }
                             })
                         }else if(request.envFile){
                             if(checkEnv['checkEnv']){
                                 fetch(request.envFile, {"credentials": 'include'})
                                     .then(response => response.text())
-                                    .then(data => checkData(data, ".env file at " + request.envFile, regexes));
+                                    .then(data => checkData(data, ".env file at " + request.envFile, regexes, undefined, request.parentUrl, request.parentOrigin));
                             }
                         }else if(request.openTabs){
                             for (tab of request.openTabs){

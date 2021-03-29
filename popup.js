@@ -60,36 +60,76 @@ for (i = 0; i < acc.length; i++) {
         el.value = result.originDenyList.join(",");
         el.focus();
       })
-      chrome.storage.sync.get(["leakedKeys"], function(result) {
-        var keys = result.leakedKeys;
-        let keyInfo = "";
-        let htmlList = "";
-        for (key of keys){
-            keyInfo = key["key"] + ": " + key["match"] + " found in " + key["src"];
-            if (key["encoded"]){
-                 keyInfo += " decoded from " + key["encoded"].substring(0,9) + "..."
+      chrome.tabs.getSelected(null,function(tab) {
+
+        var origin = (new URL(tab.url)).origin;
+        chrome.storage.sync.get(["leakedKeys"], function(result) {
+            var keys = result.leakedKeys[origin];
+            let keyInfo = "";
+            let htmlList = "";
+            if(!keys){keys = []}
+            for (key of keys){
+                keyInfo = key["key"] + ": " + key["match"] + " found in " + key["src"];
+                if (key["encoded"]){
+                     keyInfo += " decoded from " + key["encoded"].substring(0,9) + "..."
+                }
+                keyInfo = htmlEntities(keyInfo);
+                htmlList += "<li>" + keyInfo + "</li>\n"
             }
-            keyInfo = htmlEntities(keyInfo);
-            htmlList += "<li>" + keyInfo + "</li>\n"
-        }
-        document.getElementById("findingList").innerHTML = htmlList;
+            document.getElementById("findingList").innerHTML = htmlList;
+        })
       })
+
     }
   });
 }
 
-document.getElementById("clearFindings").addEventListener("click", function() {
-    chrome.storage.sync.set({"leakedKeys": []});
-    chrome.browserAction.setBadgeText({text: ''});
-    document.getElementById("findingList").innerHTML = "";
-})
+var downloadCSV = function(){
+    chrome.storage.sync.get(["leakedKeys"], function(result) {
+        let csvRows = [];
+        for (let origin in result.leakedKeys){
+            var findings = result.leakedKeys[origin];
+            for (finding of findings){
+                csvRows.push([origin, finding["src"], finding["parentUrl"], finding["key"], finding["match"], finding["encoded"]])
+            }
+        }
+        let csvContent = "data:text/csv;charset=utf-8,"
+            + csvRows.map(e => e.join(",")).join("\n");
+        var encodedUri = encodeURI(csvContent);
+        window.open(encodedUri);
+    })
+}
 
+document.getElementById("downloadAllFindings").addEventListener("click", function() {
+    downloadCSV();
+})
+document.getElementById("clearOriginFindings").addEventListener("click", function() {
+    chrome.storage.sync.get(["leakedKeys"], function(result) {
+        chrome.tabs.getSelected(null,function(tab) {
+            var origin = (new URL(tab.url)).origin;
+            result.leakedKeys[origin] = {};
+            chrome.storage.sync.set({"leakedKeys": result.leakedKeys});
+            chrome.browserAction.setBadgeText({text: ''});
+            document.getElementById("findingList").innerHTML = "";
+        })
+    })
+})
+document.getElementById("clearAllFindings").addEventListener("click", function() {
+    chrome.storage.sync.get(["leakedKeys"], function(result) {
+        chrome.tabs.getSelected(null,function(tab) {
+            var origin = (new URL(tab.url)).origin;
+            result.leakedKeys = {};
+            chrome.storage.sync.set({"leakedKeys": result.leakedKeys});
+            chrome.browserAction.setBadgeText({text: ''});
+            document.getElementById("findingList").innerHTML = "";
+        })
+    })
+})
 document.getElementById("openTabs").addEventListener("click", function() {
     var rawTabList = document.getElementById("tabList").value;
     var tabList = rawTabList.split(",").map(function(item) {
         return item.trim();
     })
-    console.log(tabList)
     for (tab of tabList){
         console.log(tab)
     }
