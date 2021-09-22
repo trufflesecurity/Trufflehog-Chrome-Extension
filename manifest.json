@@ -21,13 +21,20 @@
     "tabs",
     "storage"
   ],
-  "icons": { "16": "icon16.png",
-           "48": "icon48.png",
-          "128": "icon128.png" },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "content_scripts": [
-		{
-		 "matches": ["https://*/*","http://*/*"],
-		 "js": ["inject.js"]
-		}
-	]
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": [
+        "inject.js"
+      ]
+    }
+  ]
 }
