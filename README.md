@@ -1,3 +1,7 @@
+## Talk explaining this extension
+
+https://www.youtube.com/watch?v=i9b5Yij_HV4
+
 ## Questions? Feedback? Join our slack
 
 https://join.slack.com/t/trufflehog-community/shared_invite/zt-nzznzf8w-y1Lg4PnnLupzlYuwq_AUHA
