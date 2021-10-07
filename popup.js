@@ -1,5 +1,5 @@
 
-let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts"];
+let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts", "uniqueByHostname"];
 
 let toggleDefaults = {
     "generics": true,
@@ -7,7 +7,8 @@ let toggleDefaults = {
     "aws": true,
     "checkEnv": false,
     "checkGit": false,
-    "alerts":true
+    "alerts": true,
+    "uniqueByHostname": false
 }
 
 for (let toggle of toggles){

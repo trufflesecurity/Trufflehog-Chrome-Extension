@@ -107,33 +107,42 @@ var checkData = function(data, src, regexes, fromEncoded=false, parentUrl=undefi
     }
     if (findings){
         chrome.storage.sync.get(["leakedKeys"], function(result) {
-            if (Array.isArray(result.leakedKeys) || ! result.leakedKeys){
-                var keys = {};
-            }else{
-                var keys = result.leakedKeys;
-            };
-            for (let finding of findings){
-                if(Array.isArray(keys[parentOrigin])){
-                    var newFinding = true;
-                    for (key of keys[parentOrigin]){
-                        if (key["src"] == finding["src"] && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"] && key["parentUrl"] == finding["parentUrl"]){
-                            newFinding = false;
-                            break;
+            chrome.storage.sync.get(['uniqueByHostname'], function(uniqueByHostname) {
+                if (Array.isArray(result.leakedKeys) || ! result.leakedKeys){
+                    var keys = {};
+                }else{
+                    var keys = result.leakedKeys;
+                };
+                for (let finding of findings){
+                    if(Array.isArray(keys[parentOrigin])){
+                        var newFinding = true;
+                        for (key of keys[parentOrigin]){
+                            if (uniqueByHostname['uniqueByHostname']) {
+                                if (extractHostname(key["src"]) == extractHostname(finding["src"]) && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"]) {
+                                    newFinding = false;
+                                    break;
+                                }
+                            } else {
+                                if (key["src"] == finding["src"] && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"] && key["parentUrl"] == finding["parentUrl"]) {
+                                    newFinding = false;
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    if(newFinding){
-                        keys[parentOrigin].push(finding)
+                        if(newFinding){
+                            keys[parentOrigin].push(finding)
+                            chrome.storage.sync.set({"leakedKeys": keys}, function(){
+                                updateTabAndAlert(finding);
+                            });
+                        }
+                    }else{
+                        keys[parentOrigin] = [finding];
                         chrome.storage.sync.set({"leakedKeys": keys}, function(){
                             updateTabAndAlert(finding);
-                        });
+                        })
                     }
-                }else{
-                    keys[parentOrigin] = [finding];
-                    chrome.storage.sync.set({"leakedKeys": keys}, function(){
-                        updateTabAndAlert(finding);
-                    })
                 }
-             }
+            });
         })
     }
     let decodedStrings = getDecodedb64(data);
@@ -217,6 +226,10 @@ var getDecodedb64 = function(inputString){
         }
     }
     return decodeds;
+}
+
+const extractHostname = (url) => {
+    return new URL(url).hostname;
 }
 
 var checkIfOriginDenied = function(check_url, cb){
