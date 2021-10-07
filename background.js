@@ -285,9 +285,13 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             })
                         }else if(request.envFile){
                             if(checkEnv['checkEnv']){
-                                fetch(request.envFile, {"credentials": 'include'})
-                                    .then(response => response.text())
-                                    .then(data => checkData(data, ".env file at " + request.envFile, regexes, undefined, request.parentUrl, request.parentOrigin));
+                                checkIfOriginDenied(request.envFile, function(skip){
+                                    if (!skip){
+                                        fetch(request.envFile, {"credentials": 'include'})
+                                        .then(response => response.text())
+                                        .then(data => checkData(data, ".env file at " + request.envFile, regexes, undefined, request.parentUrl, request.parentOrigin));
+                                    }
+                                });
                             }
                         }else if(request.openTabs){
                             for (tab of request.openTabs){
@@ -296,11 +300,14 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             }
                         }else if(request.gitDir){
                             if(checkGit['checkGit']){
-                            fetch(request.gitDir, {"credentials": 'include'})
-                                    .then(response => response.text())
-                                    .then(data => checkForGitDir(data, request.gitDir));
+                                checkIfOriginDenied(request.envFile, function(skip){
+                                    if (!skip){
+                                        fetch(request.gitDir, {"credentials": 'include'})
+                                        .then(response => response.text())
+                                        .then(data => checkForGitDir(data, request.gitDir));
+                                    }
+                                });
                             }
-
                         }
                     });
                 });
