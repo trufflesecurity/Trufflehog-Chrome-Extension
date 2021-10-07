@@ -222,7 +222,7 @@ var getDecodedb64 = function(inputString){
 var checkIfOriginDenied = function(check_url, cb){
     let skip = false;
     chrome.storage.sync.get(["originDenyList"], function(result) {
-        let originDenyList = result.originDenyList;
+        let originDenyList = result.originDenyList.filter(url => url.length > 1);
         for (origin of originDenyList){
             if(check_url.startsWith(origin)){
                 skip = true;
