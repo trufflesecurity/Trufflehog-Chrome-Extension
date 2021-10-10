@@ -156,14 +156,29 @@ var updateTabAndAlert = function(finding){
     var match = finding["match"];
     var fromEncoded = finding["encoded"];
     chrome.storage.sync.get(["alerts"], function(result) {
-        console.log(result.alerts)
-        if (result.alerts == undefined || result.alerts){
+        chrome.storage.sync.get(["notifications"], function(notifications) {
+            var alertText;
+            var notifyText;
             if (fromEncoded){
-                alert(key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...");
+                alertText = key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...";
+                notifyText = `${match.substring(0,30)}... (orig was encoded) found in ${src}`;
             }else{
-                alert(key + ": " + match + " found in " + src);
+                alertText = key + ": " + match + " found in " + src;
+                notifyText = `${match.substring(0,30)}... found in ${src}`;
             }
-        }
+            if (result.alerts == undefined || result.alerts){
+                alert(alertText);
+            }
+            if (notifications['notifications']) {
+                chrome.notifications.create(src + new Date(), {
+                    type: 'basic',
+                    iconUrl: 'icon128.png',
+                    title: `Trufflehog | ${key}`,
+                    message: notifyText,
+                    priority: 2
+                });
+            }
+        })
     })
     updateTab();
 }
