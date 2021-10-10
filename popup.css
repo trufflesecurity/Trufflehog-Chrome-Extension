@@ -1,9 +1,8 @@
 /* The switch - the box around the slider */
 .switch {
   position: relative;
-  margin-left: 20px;
   display: inline-block;
-  width: 60px;
+  width: 80px;
   height: 34px;
 }
 
@@ -35,8 +34,8 @@
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: .1s;
+  transition: .1s;
 }
 
 input:checked + .slider {
@@ -50,7 +49,7 @@ input:focus + .slider {
 input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  transform: translateX(46px);
 }
 
 /* Rounded sliders */
@@ -67,7 +66,7 @@ input:checked + .slider:before {
   background-color: #eee;
   color: #444;
   cursor: pointer;
-  padding: 18px;
+  padding: 15px;
   width: 100%;
   text-align: left;
   border: none;
@@ -82,8 +81,45 @@ input:checked + .slider:before {
 
 /* Style the accordion panel. Note: hidden by default */
 .panel {
-  padding: 0 18px;
+  padding: 0 15px;
   background-color: white;
   display: none;
   overflow: hidden;
+}
+
+.switchable {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-around;
+  flex-grow: 3;
+}
+
+.option {
+  margin: 5px;
+  width: 150px;
+}
+
+.option > h3 {
+  margin: 0px;
+  margin-bottom: 5px;
+}
+
+.option > h5 {
+  margin: 0px;
+  margin-top: 5px;
+  color: #444;
+  font: small-caps;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  width: 650px;
+}
+
+.logo {
+  width: 64px;
+  margin: auto;
+  display: block;
+  margin-bottom: 10px;
 }
