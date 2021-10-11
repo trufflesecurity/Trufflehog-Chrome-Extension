@@ -7,6 +7,8 @@
 var currentTab;
 var version = "1.0";
 
+chrome = browser;
+
 chrome.tabs.query( //get current Tab
     {
         currentWindow: true,
@@ -184,9 +186,9 @@ var updateTabAndAlert = function(finding){
 }
 
 var updateTab = function(){
-     chrome.tabs.getSelected(null, function(tab) {
-        var tabId = tab.id;
-        var tabUrl = tab.url;
+    chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+        var tabId = tabs[0].id;
+        var tabUrl = tabs[0].url;
         var origin = (new URL(tabUrl)).origin
         chrome.storage.sync.get(["leakedKeys"], function(result) {
             if (Array.isArray(result.leakedKeys[origin])){

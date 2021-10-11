@@ -1,3 +1,4 @@
+chrome = browser;
 
 let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts", "notifications", "uniqueByHostname"];
 
@@ -62,9 +63,8 @@ for (i = 0; i < acc.length; i++) {
         el.value = result.originDenyList.join(",");
         el.focus();
       })
-      chrome.tabs.getSelected(null,function(tab) {
-
-        var origin = (new URL(tab.url)).origin;
+      chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+        var origin = (new URL(tabs[0].url)).origin;
         chrome.storage.sync.get(["leakedKeys"], function(result) {
             var keys = result.leakedKeys[origin];
             let keyInfo = "";
@@ -107,8 +107,8 @@ document.getElementById("downloadAllFindings").addEventListener("click", functio
 })
 document.getElementById("clearOriginFindings").addEventListener("click", function() {
     chrome.storage.sync.get(["leakedKeys"], function(result) {
-        chrome.tabs.getSelected(null,function(tab) {
-            var origin = (new URL(tab.url)).origin;
+        chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+            var origin = (new URL(tabs[0].url)).origin;
             result.leakedKeys[origin] = {};
             chrome.storage.sync.set({"leakedKeys": result.leakedKeys});
             chrome.browserAction.setBadgeText({text: ''});
@@ -118,8 +118,8 @@ document.getElementById("clearOriginFindings").addEventListener("click", functio
 })
 document.getElementById("clearAllFindings").addEventListener("click", function() {
     chrome.storage.sync.get(["leakedKeys"], function(result) {
-        chrome.tabs.getSelected(null,function(tab) {
-            var origin = (new URL(tab.url)).origin;
+        chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+            var origin = (new URL(tabs[0].url)).origin;
             result.leakedKeys = {};
             chrome.storage.sync.set({"leakedKeys": result.leakedKeys});
             chrome.browserAction.setBadgeText({text: ''});
