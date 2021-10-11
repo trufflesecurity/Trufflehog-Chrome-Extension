@@ -138,8 +138,8 @@ document.getElementById("openTabs").addEventListener("click", function() {
     })
     for (tab of tabList){
         console.log(tab)
+        chrome.tabs.create({url: tab});
     }
-    chrome.runtime.sendMessage({"openTabs": tabList});
 })
 
 

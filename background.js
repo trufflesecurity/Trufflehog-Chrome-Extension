@@ -268,7 +268,7 @@ var checkForGitDir = function(data, url){
 
 }
 var js_url;
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     chrome.storage.sync.get(['generics'], function(useGenerics) {
         chrome.storage.sync.get(['specifics'], function(useSpecifics) {
