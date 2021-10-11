@@ -7,6 +7,8 @@
 var currentTab;
 var version = "1.0";
 
+chrome = browser;
+
 chrome.tabs.query( //get current Tab
     {
         currentWindow: true,
@@ -107,33 +109,42 @@ var checkData = function(data, src, regexes, fromEncoded=false, parentUrl=undefi
     }
     if (findings){
         chrome.storage.sync.get(["leakedKeys"], function(result) {
-            if (Array.isArray(result.leakedKeys) || ! result.leakedKeys){
-                var keys = {};
-            }else{
-                var keys = result.leakedKeys;
-            };
-            for (let finding of findings){
-                if(Array.isArray(keys[parentOrigin])){
-                    var newFinding = true;
-                    for (key of keys[parentOrigin]){
-                        if (key["src"] == finding["src"] && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"] && key["parentUrl"] == finding["parentUrl"]){
-                            newFinding = false;
-                            break;
+            chrome.storage.sync.get(['uniqueByHostname'], function(uniqueByHostname) {
+                if (Array.isArray(result.leakedKeys) || ! result.leakedKeys){
+                    var keys = {};
+                }else{
+                    var keys = result.leakedKeys;
+                };
+                for (let finding of findings){
+                    if(Array.isArray(keys[parentOrigin])){
+                        var newFinding = true;
+                        for (key of keys[parentOrigin]){
+                            if (uniqueByHostname['uniqueByHostname']) {
+                                if (extractHostname(key["src"]) == extractHostname(finding["src"]) && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"]) {
+                                    newFinding = false;
+                                    break;
+                                }
+                            } else {
+                                if (key["src"] == finding["src"] && key["match"] == finding["match"] && key["key"] == finding["key"] && key["encoded"] == finding["encoded"] && key["parentUrl"] == finding["parentUrl"]) {
+                                    newFinding = false;
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    if(newFinding){
-                        keys[parentOrigin].push(finding)
+                        if(newFinding){
+                            keys[parentOrigin].push(finding)
+                            chrome.storage.sync.set({"leakedKeys": keys}, function(){
+                                updateTabAndAlert(finding);
+                            });
+                        }
+                    }else{
+                        keys[parentOrigin] = [finding];
                         chrome.storage.sync.set({"leakedKeys": keys}, function(){
                             updateTabAndAlert(finding);
-                        });
+                        })
                     }
-                }else{
-                    keys[parentOrigin] = [finding];
-                    chrome.storage.sync.set({"leakedKeys": keys}, function(){
-                        updateTabAndAlert(finding);
-                    })
                 }
-             }
+            });
         })
     }
     let decodedStrings = getDecodedb64(data);
@@ -147,22 +158,37 @@ var updateTabAndAlert = function(finding){
     var match = finding["match"];
     var fromEncoded = finding["encoded"];
     chrome.storage.sync.get(["alerts"], function(result) {
-        console.log(result.alerts)
-        if (result.alerts == undefined || result.alerts){
+        chrome.storage.sync.get(["notifications"], function(notifications) {
+            var alertText;
+            var notifyText;
             if (fromEncoded){
-                alert(key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...");
+                alertText = key + ": " + match + " found in " + src + " decoded from " + fromEncoded.substring(0,9) + "...";
+                notifyText = `${match.substring(0,30)}... (orig was encoded) found in ${src}`;
             }else{
-                alert(key + ": " + match + " found in " + src);
+                alertText = key + ": " + match + " found in " + src;
+                notifyText = `${match.substring(0,30)}... found in ${src}`;
             }
-        }
+            if (result.alerts == undefined || result.alerts){
+                chrome.tabs.executeScript({code : `alert('${alertText}')`});
+            }
+            if (notifications['notifications']) {
+                chrome.notifications.create(src + new Date(), {
+                    type: 'basic',
+                    iconUrl: 'icon128.png',
+                    title: `Trufflehog | ${key}`,
+                    message: notifyText,
+                    priority: 2
+                });
+            }
+        })
     })
     updateTab();
 }
 
 var updateTab = function(){
-     chrome.tabs.getSelected(null, function(tab) {
-        var tabId = tab.id;
-        var tabUrl = tab.url;
+    chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+        var tabId = tabs[0].id;
+        var tabUrl = tabs[0].url;
         var origin = (new URL(tabUrl)).origin
         chrome.storage.sync.get(["leakedKeys"], function(result) {
             if (Array.isArray(result.leakedKeys[origin])){
@@ -219,10 +245,14 @@ var getDecodedb64 = function(inputString){
     return decodeds;
 }
 
+const extractHostname = (url) => {
+    return new URL(url).hostname;
+}
+
 var checkIfOriginDenied = function(check_url, cb){
     let skip = false;
     chrome.storage.sync.get(["originDenyList"], function(result) {
-        let originDenyList = result.originDenyList;
+        let originDenyList = result.originDenyList.filter(url => url.length > 1);
         for (origin of originDenyList){
             if(check_url.startsWith(origin)){
                 skip = true;
@@ -238,7 +268,7 @@ var checkForGitDir = function(data, url){
 
 }
 var js_url;
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     chrome.storage.sync.get(['generics'], function(useGenerics) {
         chrome.storage.sync.get(['specifics'], function(useSpecifics) {
@@ -285,9 +315,13 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             })
                         }else if(request.envFile){
                             if(checkEnv['checkEnv']){
-                                fetch(request.envFile, {"credentials": 'include'})
-                                    .then(response => response.text())
-                                    .then(data => checkData(data, ".env file at " + request.envFile, regexes, undefined, request.parentUrl, request.parentOrigin));
+                                checkIfOriginDenied(request.envFile, function(skip){
+                                    if (!skip){
+                                        fetch(request.envFile, {"credentials": 'include'})
+                                        .then(response => response.text())
+                                        .then(data => checkData(data, ".env file at " + request.envFile, regexes, undefined, request.parentUrl, request.parentOrigin));
+                                    }
+                                });
                             }
                         }else if(request.openTabs){
                             for (tab of request.openTabs){
@@ -296,11 +330,14 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
                             }
                         }else if(request.gitDir){
                             if(checkGit['checkGit']){
-                            fetch(request.gitDir, {"credentials": 'include'})
-                                    .then(response => response.text())
-                                    .then(data => checkForGitDir(data, request.gitDir));
+                                checkIfOriginDenied(request.envFile, function(skip){
+                                    if (!skip){
+                                        fetch(request.gitDir, {"credentials": 'include'})
+                                        .then(response => response.text())
+                                        .then(data => checkForGitDir(data, request.gitDir));
+                                    }
+                                });
                             }
-
                         }
                     });
                 });

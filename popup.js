@@ -1,5 +1,6 @@
+chrome = browser;
 
-let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts"];
+let toggles = ["generics", "specifics", "aws", "checkEnv", "checkGit", "alerts", "notifications", "uniqueByHostname"];
 
 let toggleDefaults = {
     "generics": true,
@@ -7,7 +8,9 @@ let toggleDefaults = {
     "aws": true,
     "checkEnv": false,
     "checkGit": false,
-    "alerts":true
+    "alerts": true,
+    "notifications": false,
+    "uniqueByHostname": false
 }
 
 for (let toggle of toggles){
@@ -60,9 +63,8 @@ for (i = 0; i < acc.length; i++) {
         el.value = result.originDenyList.join(",");
         el.focus();
       })
-      chrome.tabs.getSelected(null,function(tab) {
-
-        var origin = (new URL(tab.url)).origin;
+      chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+        var origin = (new URL(tabs[0].url)).origin;
         chrome.storage.sync.get(["leakedKeys"], function(result) {
             var keys = result.leakedKeys[origin];
             let keyInfo = "";
@@ -93,10 +95,14 @@ var downloadCSV = function(){
                 csvRows.push([origin, finding["src"], finding["parentUrl"], finding["key"], finding["match"], finding["encoded"]])
             }
         }
-        let csvContent = "data:text/csv;charset=utf-8,"
-            + csvRows.map(e => e.join(",")).join("\n");
-        var encodedUri = encodeURI(csvContent);
-        window.open(encodedUri);
+        let csvContent = csvRows.map(e => e.join(",")).join("\n");
+        var hideEl = document.createElement('a');  
+        hideEl.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURI(csvContent);
+        hideEl.target = '_blank';  
+        hideEl.download = 'trufflehog_findings.csv';   
+        document.body.appendChild(hideEl);
+        hideEl.click();
+        document.body.removeChild(hideEl);
     })
 }
 
@@ -105,8 +111,8 @@ document.getElementById("downloadAllFindings").addEventListener("click", functio
 })
 document.getElementById("clearOriginFindings").addEventListener("click", function() {
     chrome.storage.sync.get(["leakedKeys"], function(result) {
-        chrome.tabs.getSelected(null,function(tab) {
-            var origin = (new URL(tab.url)).origin;
+        chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+            var origin = (new URL(tabs[0].url)).origin;
             result.leakedKeys[origin] = {};
             chrome.storage.sync.set({"leakedKeys": result.leakedKeys});
             chrome.browserAction.setBadgeText({text: ''});
@@ -116,8 +122,8 @@ document.getElementById("clearOriginFindings").addEventListener("click", functio
 })
 document.getElementById("clearAllFindings").addEventListener("click", function() {
     chrome.storage.sync.get(["leakedKeys"], function(result) {
-        chrome.tabs.getSelected(null,function(tab) {
-            var origin = (new URL(tab.url)).origin;
+        chrome.tabs.query({currentWindow: true, active: true}).then(function(tabs) {
+            var origin = (new URL(tabs[0].url)).origin;
             result.leakedKeys = {};
             chrome.storage.sync.set({"leakedKeys": result.leakedKeys});
             chrome.browserAction.setBadgeText({text: ''});
@@ -132,8 +138,8 @@ document.getElementById("openTabs").addEventListener("click", function() {
     })
     for (tab of tabList){
         console.log(tab)
+        chrome.tabs.create({url: tab});
     }
-    chrome.runtime.sendMessage({"openTabs": tabList});
 })
 
 

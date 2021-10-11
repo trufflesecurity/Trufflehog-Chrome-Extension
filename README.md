@@ -7,10 +7,13 @@ https://www.youtube.com/watch?v=i9b5Yij_HV4
 https://join.slack.com/t/trufflehog-community/shared_invite/zt-nzznzf8w-y1Lg4PnnLupzlYuwq_AUHA
 
 ## Install instructions
-
-The extension is available for install here https://chrome.google.com/webstore/detail/trufflehog/bafhdnhjnlcdbjcdcnafhdcphhnfnhjc
-
-Here's what to do if you find these keys:
+### Build
+`npm install --global web-ext` & 'web-ext build'
+or
+`npx web-ext build`
+### Install
+After executing commands, an extension file should appear in ./web-ext-artifacts/trufflehog-{Version number}.zip 
+To install an extension from a file, switch `xpinstall.signatures.required parameter` to `false` in Firefox on `about:config` page.
 
 ## AWS keys
 AWS has a rich API and sadely you may have to test a bunch of commands. List buckets might be a good start https://docs.aws.amazon.com/cli/latest/reference/s3api/list-buckets.html

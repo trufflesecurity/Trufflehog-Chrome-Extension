@@ -2,83 +2,114 @@
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file. -->
 <html>
-  <head>
-      <title>Trufflehog</title>
-      <link href="popup.css" rel="stylesheet" type="text/css">
-  </head>
-  <body style="width: 300px;">
-      <img src='./icon.png' style="width: 128px; margin: auto; display: block;">
-      <div>
-          <h3>Generic Secrets</h3>
-          <label class="switch">
-              <input type="checkbox" id="generics">
-              <span class="slider"></span>
-          </label>
-      </div>
-      <div>
-          <h3>Specific Secrets</h3>
-          <label class="switch">
-              <input type="checkbox" id="specifics">
-              <span class="slider"></span>
-          </label>
-      </div>
-      <div>
-          <h3>AWS Keys</h3>
-          <label class="switch">
-              <input type="checkbox" id="aws">
-              <span class="slider"></span>
-          </label>
-      </div>
-      <div style="margin-bottom: 10px">
-          <h3>Check for .env files</h3>
-          <h5>(can trigger WAF bans)</h5>
-          <label class="switch">
-              <input type="checkbox" id="checkEnv">
-              <span class="slider"></span>
-          </label>
-      </div>
-      <div style="margin-bottom: 10px">
-          <h3>Check for .git dirs</h3>
-          <h5>(can trigger WAF bans)</h5>
-          <label class="switch">
-              <input type="checkbox" id="checkGit">
-              <span class="slider"></span>
-          </label>
-      </div>
-      <div style="margin-bottom: 10px">
-          <h3>Alerts</h3>
-          <label class="switch">
-              <input type="checkbox" id="alerts">
-              <span class="slider"></span>
-          </label>
-      </div>
-      <div>
-          <button class="accordion"><h3>Origin Deny List</h3></button>
-          <div class="panel">
-              Comma Seperated
-              <textarea style="width:100%" id="denyList"></textarea>
-          </div>
-      </div>
-       <div>
-          <button class="accordion"><h3>Findings</h3></button>
-          <div class="panel">
-              <button style="margin-top: 10px" id="clearOriginFindings">Clear This Origin</button>
-              <button style="margin-top: 10px" id="clearAllFindings">Clear All Origins</button>
-              <button style="margin-top: 10px" id="downloadAllFindings">Download All Findings</button>
-              <h3>Findings for this origin</h3>
-              <ul id="findingList">
 
-              </ul>
-          </div>
+<head>
+  <title>Trufflehog</title>
+  <link href="popup.css" rel="stylesheet" type="text/css">
+  <meta charset="utf-8">
+</head>
+
+<body>
+  <img src='./icon.png' class="logo">
+  <div class="switchable">
+    <div class="option">
+      <h3>Generic Secrets</h3>
+      <label class="switch">
+        <input type="checkbox" id="generics">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="option">
+      <h3>Specific Secrets</h3>
+      <label class="switch">
+        <input type="checkbox" id="specifics">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="option">
+      <h3>AWS Keys</h3>
+      <label class="switch">
+        <input type="checkbox" id="aws">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="option" style="margin-bottom: 10px">
+      <h3>Check for .env files</h3>
+      <label class="switch">
+        <input type="checkbox" id="checkEnv">
+        <span class="slider"></span>
+      </label>
+      <h5>(can trigger WAF bans)</h5>
+    </div>
+    <div class="option" style="margin-bottom: 10px">
+      <h3>Check for .git dirs</h3>
+      <label class="switch">
+        <input type="checkbox" id="checkGit">
+        <span class="slider"></span>
+      </label>
+      <h5>(can trigger WAF bans)</h5>
+    </div>
+    <div class="option">
+      <h3>Alerts</h3>
+      <label class="switch">
+        <input type="checkbox" id="alerts">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="option">
+      <h3>Notifications</h3>
+      <label class="switch">
+        <input type="checkbox" id="notifications">
+        <span class="slider"></span>
+      </label>
+      <h5>Send short browser notifications</h5>
+    </div>
+    <div class="option">
+      <h3>Unique by host</h3>
+      <label class="switch">
+        <input type="checkbox" id="uniqueByHostname">
+        <span class="slider"></span>
+      </label>
+      <h5>Don't catch equal secrets from same hostname but different page</h5>
+    </div>
+  </div>
+  <hr>
+  <div>
+    <div>
+      <button class="accordion">
+        <h3>Origin Deny List</h3>
+      </button>
+      <div class="panel">
+        Comma Seperated
+        <textarea style="width:100%" id="denyList"></textarea>
       </div>
-      <div>
-          <button class="accordion"><h3>Open Lots Of Tabs</h3></button>
-          <div class="panel">
-              Comma Seperated
-              <button style="margin-top: 10px" id="openTabs">Open Tabs</button>
-              <textarea style="width:100%" id="tabList" placeholder="https://google.com,https://yahoo.com"></textarea>
-          </div>
+    </div>
+    <div>
+      <button class="accordion">
+        <h3>Findings</h3>
+      </button>
+      <div class="panel">
+        <button style="margin-top: 10px" id="clearOriginFindings">Clear This Origin</button>
+        <button style="margin-top: 10px" id="clearAllFindings">Clear All Origins</button>
+        <button style="margin-top: 10px" id="downloadAllFindings">Download All Findings</button>
+        <h5>Findings for this origin</h3>
+        <ul id="findingList">
+
+        </ul>
       </div>
-   <script src="popup.js"></script>
-  </body>
+    </div>
+    <div>
+      <button class="accordion">
+        <h3>Open Lots Of Tabs</h3>
+      </button>
+      <div class="panel">
+        Comma Seperated
+        <button style="margin-top: 10px" id="openTabs">Open Tabs</button>
+        <textarea style="width:100%" id="tabList" placeholder="https://google.com,https://yahoo.com"></textarea>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+
 </html>
