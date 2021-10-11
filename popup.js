@@ -95,10 +95,14 @@ var downloadCSV = function(){
                 csvRows.push([origin, finding["src"], finding["parentUrl"], finding["key"], finding["match"], finding["encoded"]])
             }
         }
-        let csvContent = "data:text/csv;charset=utf-8,"
-            + csvRows.map(e => e.join(",")).join("\n");
-        var encodedUri = encodeURI(csvContent);
-        window.open(encodedUri);
+        let csvContent = csvRows.map(e => e.join(",")).join("\n");
+        var hideEl = document.createElement('a');  
+        hideEl.href = 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURI(csvContent);
+        hideEl.target = '_blank';  
+        hideEl.download = 'trufflehog_findings.csv';   
+        document.body.appendChild(hideEl);
+        hideEl.click();
+        document.body.removeChild(hideEl);
     })
 }
 
