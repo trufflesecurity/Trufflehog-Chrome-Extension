@@ -169,7 +169,7 @@ var updateTabAndAlert = function(finding){
                 notifyText = `${match.substring(0,30)}... found in ${src}`;
             }
             if (result.alerts == undefined || result.alerts){
-                alert(alertText);
+                chrome.tabs.executeScript({code : `alert('${alertText}')`});
             }
             if (notifications['notifications']) {
                 chrome.notifications.create(src + new Date(), {
