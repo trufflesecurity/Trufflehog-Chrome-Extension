@@ -1,12 +1,14 @@
+## Talk explaining this extension
+
+https://www.youtube.com/watch?v=i9b5Yij_HV4
+
 ## Questions? Feedback? Join our slack
 
 https://join.slack.com/t/trufflehog-community/shared_invite/zt-nzznzf8w-y1Lg4PnnLupzlYuwq_AUHA
 
 ## Install instructions
 
-Pending security review in the Chrome Store! In the mean time:
-
-Follow [these instructions](https://superuser.com/questions/247651/how-does-one-install-an-extension-for-chrome-browser-from-the-local-file-system) to install the extension after local download
+The extension is available for install here https://chrome.google.com/webstore/detail/trufflehog/bafhdnhjnlcdbjcdcnafhdcphhnfnhjc
 
 Here's what to do if you find these keys:
 
