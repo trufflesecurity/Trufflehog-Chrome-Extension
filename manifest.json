@@ -1,33 +1,48 @@
 {
-  "name": "Trufflehog",
-  "version": "0.0.1",
-  "manifest_version": 2,
-  "description": "Sniffing out credentials",
-  "homepage_url": "https://trufflesecurity.com",
-  "background": {
-    "scripts": [
-      "background.js"
+    "name": "Trufflehog",
+    "version": "1.0.1",
+    "manifest_version": 2,
+    "description": "Sniffing out credentials",
+    "homepage_url": "https://trufflesecurity.com",
+    "background":
+    {
+        "scripts":
+        [
+            "background.js"
+        ],
+        "persistent": true
+    },
+    "browser_action":
+    {
+        "default_title": "Trufflehog",
+        "default_popup": "popup.html"
+    },
+    "permissions":
+    [
+        "https://*/*",
+        "http://*/*",
+        "activeTab",
+        "tabs",
+        "storage"
     ],
-    "persistent": true
-  },
-  "browser_action": {
-    "default_title": "Trufflehog",
-    "default_popup": "popup.html"
-  },
-  "permissions": [
-    "https://*/*",
-    "http://*/*",
-    "activeTab",
-    "tabs",
-    "storage"
-  ],
-  "icons": { "16": "icon16.png",
-           "48": "icon48.png",
-          "128": "icon128.png" },
-  "content_scripts": [
-		{
-		 "matches": ["https://*/*","http://*/*"],
-		 "js": ["inject.js"]
-		}
-	]
+    "icons":
+    {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "content_scripts":
+    [
+        {
+            "matches":
+            [
+                "https://*/*",
+                "http://*/*"
+            ],
+            "js":
+            [
+                "inject.js"
+            ]
+        }
+    ]
 }
