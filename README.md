@@ -6,15 +6,12 @@ https://join.slack.com/t/trufflehog-community/shared_invite/zt-nzznzf8w-y1Lg4Pnn
 
 Pending security review in the Chrome Store! In the mean time:
 
-Follow [these instructions](https://superuser.com/questions/247651/how-does-one-install-an-extension-for-chrome-browser-from-the-local-file-system) to install the extension after local download 
+Follow [these instructions](https://superuser.com/questions/247651/how-does-one-install-an-extension-for-chrome-browser-from-the-local-file-system) to install the extension after local download
 
 Here's what to do if you find these keys:
 
-## AWS keys
-AWS has a rich API and sadely you may have to test a bunch of commands. List buckets might be a good start https://docs.aws.amazon.com/cli/latest/reference/s3api/list-buckets.html
-
-## Slack webhook keys
-These are a problem almost always, see https://cybersecurity.att.com/blogs/labs-research/slack-phishing-attacks-using-webhooks
+## keyhacks Project:
+[keyhacks Project on Github](https://github.com/streaak/keyhacks)
 
 ## Algelia
 These keys have access controls, a typical public key should not have access to the usage API, otherwise it could be an issue:
@@ -34,6 +31,10 @@ curl -u API_Key:${KEY} 'https://amplitude.com/api/2/export?start=20150201T5&end=
 <html><title>403: Forbidden</title><body>403: Forbidden</body></html>%
 ```
 
+## AWS keys
+AWS has a rich API and sadly you may have to test a bunch of commands.
+List buckets might be a good start https://docs.aws.amazon.com/cli/latest/reference/s3api/list-buckets.html
+
 ## Bugsnag API
 You should not be able to pull the orginization name
 ```
@@ -52,3 +53,6 @@ These keys also follow the same format for many other API's such as gmail/drive/
 JWT's are interesting not just because they go to API's, but also because you can crack their secret in hashcat if they're alg `hs`
 you can decode them here to figure out their algorithm https://jwt.io/
 and you can crack them here https://hashcat.net/wiki/doku.php?id=example_hashes with flag `-m 16500`
+
+## Slack webhook keys
+These are a problem almost always, see https://cybersecurity.att.com/blogs/labs-research/slack-phishing-attacks-using-webhooks
